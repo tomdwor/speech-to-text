@@ -145,13 +145,19 @@ python mp3_speech_to_text.py -i example_data/ibiza_es.mp3 -o output/ibiza_es.txt
 ## Project Structure
 ```
 speech-to-text/
+├── data/
+│   └── .gitignore
+├── example_data/
+│   ├── ibiza_en.mp3
+│   └── ibiza_es.mp3
 ├── output/
 │   └── .gitignore
 ├── .gitignore
-├── README.md
-├── requirements.txt
+├── LICENSE
 ├── mic_speech_to_text.py
-└── mp3_speech_to_text.py
+├── mp3_speech_to_text.py
+├── README.MD
+└── requirements.txt
 ```
 
 ## Troubleshooting
