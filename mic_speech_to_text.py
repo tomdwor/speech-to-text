@@ -1,15 +1,33 @@
-import speech_recognition as sr
-from datetime import datetime
-import signal
+import argparse
 import io
+import signal
 import wave
 
+import speech_recognition as sr
 
-def transcribe_speech():
+# Supported languages with their codes
+SUPPORTED_LANGUAGES = {
+    'en': 'English',
+    'es': 'Spanish',
+    'fr': 'French',
+    'de': 'German',
+    'it': 'Italian',
+    'pt': 'Portuguese',
+    'ru': 'Russian',
+    'zh-CN': 'Chinese (Simplified)',
+    'ja': 'Japanese',
+    'ko': 'Korean'
+}
+
+
+def transcribe_speech(output_file, language='en'):
     """
     Records speech from microphone and saves transcription to a text file.
     Can be stopped with Ctrl+C.
     """
+    if language not in SUPPORTED_LANGUAGES:
+        return f"Language code '{language}' is not supported", None
+
     recognizer = sr.Recognizer()
     recording = True
 
@@ -49,13 +67,10 @@ def transcribe_speech():
             audio = recognizer.record(audio_source)
 
         try:
-            text = recognizer.recognize_google(audio)
-            filename = f"output/speech_transcript_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-
-            with open(filename, 'w') as file:
+            text = recognizer.recognize_google(audio, language=language)
+            with open(output_file, 'w') as file:
                 file.write(text)
-
-            return text, filename
+            return text, output_file
 
         except sr.UnknownValueError:
             return "Could not understand audio", None
@@ -63,10 +78,51 @@ def transcribe_speech():
             return "Could not connect to speech recognition service", None
 
 
-if __name__ == "__main__":
-    text, filename = transcribe_speech()
+def list_supported_languages():
+    """Print a formatted list of supported languages."""
+    print("\nSupported Languages:")
+    print("-------------------")
+    max_code_length = max(len(code) for code in SUPPORTED_LANGUAGES.keys())
+    for code, name in sorted(SUPPORTED_LANGUAGES.items()):
+        print(f"{code.ljust(max_code_length)} : {name}")
+    print()
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Convert microphone speech to text')
+
+    # Create argument groups
+    required_args = parser.add_argument_group('required arguments')
+    optional_args = parser.add_argument_group('optional arguments')
+
+    # Move --list-languages to parser level (not in any group)
+    parser.add_argument('--list-languages', action='store_true',
+                        help='List all supported languages')
+
+    # Required argument (only if not listing languages)
+    required_args.add_argument('--output-file', '-o',
+                               help='Path to output text file (.txt)')
+
+    # Optional arguments
+    optional_args.add_argument('--language', '-l', default='en',
+                               help='Language code (e.g., en, es, fr). Use --list-languages to see all options')
+
+    args = parser.parse_args()
+
+    if args.list_languages:
+        list_supported_languages()
+        return
+
+    if not args.output_file:
+        parser.error("--output-file/-o is required when not using --list-languages")
+
+    text, filename = transcribe_speech(args.output_file, args.language)
     if filename:
         print(f"\nTranscription saved to: {filename}")
         print(f"Transcribed text: {text}")
     else:
         print(f"Error: {text}")
+
+
+if __name__ == "__main__":
+    main()
