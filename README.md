@@ -223,3 +223,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contact
 
 For bug reports and feature requests, please use the GitHub Issues page.
+
+## Blog article
+
+[Transform Speech into Text with Python: A Versatile Speech Recognition Tool - Tomasz Dworakowski Blog](https://www.tdworakowski.com/2024/11/transform-speech-into-text-with-python.html)
